@@ -166,96 +166,6 @@ public class ZohoService {
         return null;
     }
 
-//    public void createLeadsFromPBXResponses() {
-//        String authenticationKey = pbxService.getAuthenticationKey(authKey);
-//        System.out.println(authenticationKey);
-//        List<PbxResponse> pbxResponses = pbxService.getCalls(authenticationKey);
-//        String url = "https://www.zohoapis.com/crm/v2/Leads";
-//        String token = refreshAccessToken();
-//        System.out.println(token);
-//
-//        // API uchun umumiy sozlamalar
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.set("Authorization", "Bearer " + token);
-//        headers.set("Content-Type", "application/json");
-//
-//        RestTemplate restTemplate = new RestTemplate();
-//
-//        for (PbxResponse pbxResponse : pbxResponses) {
-//            try {
-//                ZohoLead lead = new ZohoLead();
-//
-//                lead.setLastName(pbxResponse.getCallerIdName() != null ? pbxResponse.getCallerIdName() : "Unknown Caller");
-//                lead.setFirstName("PBX Contact"); // First Name standart qiymat
-//                lead.setPhone(pbxResponse.getDestinationNumber());
-//                lead.setMobile(pbxResponse.getGateway());
-//                lead.setEmail("none@example.com"); // Emailni dummy tarzda o'zgartirish mumkin
-//                lead.setDescription(showDescription(pbxResponse,authenticationKey));
-//                lead.setLeadSource("PBX System");
-//                lead.setCity("Unknown");
-//                lead.setCountry("Unknown");
-//                lead.setIndustry("Telecom");
-//                lead.setLeadStatus("Attempted to Contact");
-//
-//                ZohoLead.Owner owner = new ZohoLead.Owner();
-//                owner.setId(ownerId); // Zoho'dagi default owner ID
-//                lead.setOwner(owner);
-//
-//                Map<String, Object> leadData = Map.of("data", List.of(lead));
-//                HttpEntity<Map<String, Object>> entity = new HttpEntity<>(leadData, headers);
-//                restTemplate.postForEntity(url, entity, String.class);
-//
-//            } catch (Exception e) {
-//                System.err.println("Error creating lead: " + e.getMessage());
-//            }
-//        }
-//    }
-
-//    public void createLeadsFromPBXResponses(String startStampFrom, String startStampTo) {
-//        String authenticationKey = pbxService.getAuthenticationKey(authKey);
-//        System.out.println(authenticationKey);
-//        List<PbxResponse> pbxResponses = pbxService.getCalls(startStampFrom, startStampTo, authenticationKey);
-//        String url = "https://www.zohoapis.com/crm/v2/Leads";
-//        String token = refreshAccessToken();
-//        System.out.println(token);
-//
-//        // API uchun umumiy sozlamalar
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.set("Authorization", "Bearer " + token);
-//        headers.set("Content-Type", "application/json");
-//
-//        RestTemplate restTemplate = new RestTemplate();
-//
-//        for (PbxResponse pbxResponse : pbxResponses) {
-//            try {
-//                ZohoLead lead = new ZohoLead();
-//
-//                lead.setLastName(pbxResponse.getCallerIdName() != null ? pbxResponse.getCallerIdName() : "Unknown Caller");
-//                lead.setFirstName("PBX Contact"); // First Name standart qiymat
-//                lead.setPhone(pbxResponse.getDestinationNumber());
-//                lead.setMobile(pbxResponse.getGateway());
-//                lead.setEmail("none@example.com"); // Emailni dummy tarzda o'zgartirish mumkin
-//                lead.setDescription(showDescription(pbxResponse, authenticationKey));
-//                lead.setLeadSource("PBX System");
-//                lead.setCity("Unknown");
-//                lead.setCountry("Unknown");
-//                lead.setIndustry("Telecom");
-//                lead.setLeadStatus("Attempted to Contact");
-//
-//                ZohoLead.Owner owner = new ZohoLead.Owner();
-//                owner.setId(ownerId); // Zoho'dagi default owner ID
-//                lead.setOwner(owner);
-//
-//                Map<String, Object> leadData = Map.of("data", List.of(lead));
-//                HttpEntity<Map<String, Object>> entity = new HttpEntity<>(leadData, headers);
-//                restTemplate.postForEntity(url, entity, String.class);
-//
-//            } catch (Exception e) {
-//                System.err.println("Error creating lead: " + e.getMessage());
-//            }
-//        }
-//    }
-
     private String showDescription(PbxResponse pbxResponse, String authenticationKey) {
         return "Call from PBX system. UUID:  " + pbxResponse.getUuid() + "\n" +
                 "Call from host:  " + pbxResponse.getFromHost() + "\n" +
@@ -267,8 +177,7 @@ public class ZohoService {
                 "Call hang up cause:  " + pbxResponse.getHangupCause() + "\n" +
                 "Call account code:  " + pbxResponse.getAccountCode() + "\n" +
                 "Call contacted:  " + pbxResponse.isContacted() + "\n" +
-                "Call quality score:  " + pbxResponse.getQualityScore() + "\n" +
-                "Call audio link for download:  " + pbxService.getCallAudioFileUrl(pbxResponse.getUuid(), authenticationKey) + "\n";
+                "Call quality score:  " + pbxResponse.getQualityScore() + "\n";
     }
 
     public String refreshAccessToken() {
@@ -310,6 +219,51 @@ public class ZohoService {
 //        String startStampFrom = String.valueOf(now.minusDays(1).toEpochSecond());
 //        createLeadsFromPBXResponses(startStampFrom, startStampTo);
 //    }
+
+//public void createLeadsFromPBXResponses(String startStampFrom, String startStampTo) {
+//    String authenticationKey = pbxService.getAuthenticationKey(authKey);
+//    System.out.println(authenticationKey);
+//    List<PbxResponse> pbxResponses = pbxService.getCalls(startStampFrom, startStampTo, authenticationKey);
+//    String url = "https://www.zohoapis.com/crm/v2/Leads";
+//    String token = refreshAccessToken();
+//    System.out.println(token);
+//
+//    // API uchun umumiy sozlamalar
+//    HttpHeaders headers = new HttpHeaders();
+//    headers.set("Authorization", "Bearer " + token);
+//    headers.set("Content-Type", "application/json");
+//
+//    RestTemplate restTemplate = new RestTemplate();
+//
+//    for (PbxResponse pbxResponse : pbxResponses) {
+//        try {
+//            ZohoLead lead = new ZohoLead();
+//
+//            lead.setLastName(pbxResponse.getCallerIdName() != null ? pbxResponse.getCallerIdName() : "Unknown Caller");
+//            lead.setFirstName("PBX Contact"); // First Name standart qiymat
+//            lead.setPhone(pbxResponse.getDestinationNumber());
+//            lead.setMobile(pbxResponse.getGateway());
+//            lead.setEmail("none@example.com"); // Emailni dummy tarzda o'zgartirish mumkin
+//            lead.setDescription(showDescription(pbxResponse, authenticationKey));
+//            lead.setLeadSource("PBX System");
+//            lead.setCity("Unknown");
+//            lead.setCountry("Unknown");
+//            lead.setIndustry("Telecom");
+//            lead.setLeadStatus("Attempted to Contact");
+//
+//            ZohoLead.Owner owner = new ZohoLead.Owner();
+//            owner.setId(ownerId); // Zoho'dagi default owner ID
+//            lead.setOwner(owner);
+//
+//            Map<String, Object> leadData = Map.of("data", List.of(lead));
+//            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(leadData, headers);
+//            restTemplate.postForEntity(url, entity, String.class);
+//
+//        } catch (Exception e) {
+//            System.err.println("Error creating lead: " + e.getMessage());
+//        }
+//    }
+//}
 
 }
 

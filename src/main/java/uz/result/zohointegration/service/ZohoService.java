@@ -71,7 +71,7 @@ public class ZohoService {
                 lead.setPhone(pbxResponse.getDestinationNumber());
                 lead.setMobile(pbxResponse.getGateway());
                 lead.setEmail("none@example.com"); // Dummy Email
-                lead.setDescription(showDescription(pbxResponse, authenticationKey));
+                lead.setDescription(showDescription(pbxResponse));
                 lead.setLeadSource("PBX System");
                 lead.setCity("Unknown");
                 lead.setCountry("Unknown");
@@ -166,7 +166,7 @@ public class ZohoService {
         return null;
     }
 
-    private String showDescription(PbxResponse pbxResponse, String authenticationKey) {
+    private String showDescription(PbxResponse pbxResponse) {
         return "Call from PBX system. UUID:  " + pbxResponse.getUuid() + "\n" +
                 "Call from host:  " + pbxResponse.getFromHost() + "\n" +
                 "Call to host:  " + pbxResponse.getToHost() + "\n" +

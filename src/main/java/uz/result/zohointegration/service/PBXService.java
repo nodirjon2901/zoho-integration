@@ -48,7 +48,9 @@ public class PBXService {
         }
     }
 
-//    public List<PbxResponse> getCalls(String startStampFrom, String startStampTo,String authenticationKey) {
+//    public List<PbxResponse> getCalls(String authenticationKey) {
+//        String startStampFrom="1733097600";
+//        String startStampTo="1733616000";
 //        String url = "https://api2.onlinepbx.ru/pbx28186.onpbx.ru/mongo_history/search.json";
 //        HttpHeaders headers = new HttpHeaders();
 //        headers.set("x-pbx-authentication", authenticationKey);

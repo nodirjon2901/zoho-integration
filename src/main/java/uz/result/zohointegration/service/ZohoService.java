@@ -12,6 +12,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import uz.result.zohointegration.model.dto.PbxResponse;
+import uz.result.zohointegration.model.dto.RingStarResponse;
 import uz.result.zohointegration.model.dto.ZohoLead;
 
 import java.io.File;
@@ -135,6 +136,36 @@ public class ZohoService {
         }
     }
 
+    public void uploadAudioFileFromRingStar(String leadId, String token, String audioUrl) {
+        System.out.println(audioUrl);
+        // Download the audio file from PBX (temporary storage on server or memory)
+        File audioFile = downloadAudioFile(audioUrl);
+
+        if (audioFile != null) {
+            String uploadUrl = "https://www.zohoapis.com/crm/v2/Leads/" + leadId + "/Attachments";
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Zoho-oauthtoken " + token);
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+            body.add("file", new FileSystemResource(audioFile));
+
+            HttpEntity<MultiValueMap<String, Object>> entity = new HttpEntity<>(body, headers);
+
+            RestTemplate restTemplate = new RestTemplate();
+            try {
+                ResponseEntity<String> response = restTemplate.postForEntity(uploadUrl, entity, String.class);
+                System.out.println("Audio file uploaded successfully for Lead ID: " + leadId);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            } finally {
+                // Clean up temporary audio file
+                audioFile.delete();
+            }
+        }
+    }
+
     public File downloadAudioFile(String fileUrl) {
         RestTemplate restTemplate = new RestTemplate();
         try {
@@ -210,60 +241,83 @@ public class ZohoService {
         }
     }
 
-//        @Scheduled(cron = "01 59 23 * * *", zone = "Asia/Tashkent")
-////    @Scheduled(cron = "0 * * * * *", zone = "Asia/Tashkent")
+    public void createLeadsFromRingStarResponse(List<RingStarResponse> calls) {
+        String url = "https://www.zohoapis.com/crm/v2/Leads";
+        String token = refreshAccessToken(); // Access tokenni yangilash
+        System.out.println("Zoho Access Token: " + token);
+
+        // HTTP sozlamalar
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + token);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        RestTemplate restTemplate = new RestTemplate();
+        System.out.println(calls);
+        for (RingStarResponse call : calls) {
+            try {
+                // ZohoLead obyektini yaratish
+                ZohoLead lead = new ZohoLead();
+                lead.setLastName(call.getUserName() != null ? call.getUserName() : "Unknown Caller");
+                lead.setFirstName("RingStar Contact"); // Default First Name
+                lead.setPhone(call.getClient());
+                lead.setMobile(call.getDiversion());
+                lead.setEmail("none@example.com"); // Dummy Email
+                lead.setDescription(buildDescription(call));
+                lead.setLeadSource("RingStar PBX");
+                lead.setCity("Unknown");
+                lead.setCountry("Unknown");
+                lead.setIndustry("Telecom");
+                lead.setLeadStatus(call.getStatus().equals("missed") ? "Not Contacted" : "Contacted");
+
+                ZohoLead.Owner owner = new ZohoLead.Owner();
+                owner.setId(ownerId); // Replace with Zoho Owner ID
+                lead.setOwner(owner);
+
+                // Leadni Zoho CRM'ga yuborish
+                Map<String, Object> leadData = Map.of("data", List.of(lead));
+                HttpEntity<Map<String, Object>> entity = new HttpEntity<>(leadData, headers);
+
+                ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
+
+                // Javobni tahlil qilish
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode responseNode = objectMapper.readTree(response.getBody());
+                String leadId = responseNode.path("data").get(0).path("details").path("id").asText();
+                uploadAudioFileFromRingStar(leadId, token, call.getRecord());
+                System.out.println("Lead created successfully with ID: " + leadId);
+
+            } catch (Exception e) {
+                System.err.println("Error creating lead: " + e.getMessage());
+            }
+        }
+    }
+
+    private String buildDescription(RingStarResponse call) {
+        return "Call Details:\n" +
+                "UID: " + call.getUid() + "\n" +
+                "Type: " + call.getType() + "\n" +
+                "Status: " + call.getStatus() + "\n" +
+                "Client: " + call.getClient() + "\n" +
+                "Destination: " + call.getDestination() + "\n" +
+                "Wait Time: " + call.getWait() + " seconds\n";
+    }
+
+
+//    @Scheduled(cron = "01 59 23 * * *", zone = "Asia/Dubai") // Dubay vaqtiga o'zgartirildi
 //    public void autoRun() {
-//        // Hozirgi vaqtni olish (GMT+5 - Tashkent zonasi)
-//        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Tashkent"));
-//        String startStampTo = String.valueOf(now.toEpochSecond());
-//        String startStampFrom = String.valueOf(now.minusDays(1).toEpochSecond());
+//        // Hozirgi vaqtni olish (GMT+4 - Dubai zonasi)
+//        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Dubai"));
+//
+//        // So'nggi kunlik vaqt intervalini olish
+//        String startStampTo = String.valueOf(now.toEpochSecond()); // Hozirgi vaqt
+//        String startStampFrom = String.valueOf(now.minusDays(1).toEpochSecond()); // Bir kun oldingi vaqt
+//
+//        System.out.println("Start Time (Epoch): " + startStampFrom);
+//        System.out.println("End Time (Epoch): " + startStampTo);
+//
+//        // PBX'dan ma'lumotlarni olib, Zoho CRM'ga yozish
 //        createLeadsFromPBXResponses(startStampFrom, startStampTo);
 //    }
-
-//public void createLeadsFromPBXResponses(String startStampFrom, String startStampTo) {
-//    String authenticationKey = pbxService.getAuthenticationKey(authKey);
-//    System.out.println(authenticationKey);
-//    List<PbxResponse> pbxResponses = pbxService.getCalls(startStampFrom, startStampTo, authenticationKey);
-//    String url = "https://www.zohoapis.com/crm/v2/Leads";
-//    String token = refreshAccessToken();
-//    System.out.println(token);
-//
-//    // API uchun umumiy sozlamalar
-//    HttpHeaders headers = new HttpHeaders();
-//    headers.set("Authorization", "Bearer " + token);
-//    headers.set("Content-Type", "application/json");
-//
-//    RestTemplate restTemplate = new RestTemplate();
-//
-//    for (PbxResponse pbxResponse : pbxResponses) {
-//        try {
-//            ZohoLead lead = new ZohoLead();
-//
-//            lead.setLastName(pbxResponse.getCallerIdName() != null ? pbxResponse.getCallerIdName() : "Unknown Caller");
-//            lead.setFirstName("PBX Contact"); // First Name standart qiymat
-//            lead.setPhone(pbxResponse.getDestinationNumber());
-//            lead.setMobile(pbxResponse.getGateway());
-//            lead.setEmail("none@example.com"); // Emailni dummy tarzda o'zgartirish mumkin
-//            lead.setDescription(showDescription(pbxResponse, authenticationKey));
-//            lead.setLeadSource("PBX System");
-//            lead.setCity("Unknown");
-//            lead.setCountry("Unknown");
-//            lead.setIndustry("Telecom");
-//            lead.setLeadStatus("Attempted to Contact");
-//
-//            ZohoLead.Owner owner = new ZohoLead.Owner();
-//            owner.setId(ownerId); // Zoho'dagi default owner ID
-//            lead.setOwner(owner);
-//
-//            Map<String, Object> leadData = Map.of("data", List.of(lead));
-//            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(leadData, headers);
-//            restTemplate.postForEntity(url, entity, String.class);
-//
-//        } catch (Exception e) {
-//            System.err.println("Error creating lead: " + e.getMessage());
-//        }
-//    }
-//}
 
 }
 

@@ -21,7 +21,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -44,6 +43,9 @@ public class ZohoService {
 
     @Autowired
     private PBXService pbxService;
+
+    @Autowired
+    private RingStarService ringStarService;
 
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -303,21 +305,21 @@ public class ZohoService {
     }
 
 
-//    @Scheduled(cron = "01 59 23 * * *", zone = "Asia/Dubai") // Dubay vaqtiga o'zgartirildi
-//    public void autoRun() {
-//        // Hozirgi vaqtni olish (GMT+4 - Dubai zonasi)
-//        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Dubai"));
-//
-//        // So'nggi kunlik vaqt intervalini olish
-//        String startStampTo = String.valueOf(now.toEpochSecond()); // Hozirgi vaqt
-//        String startStampFrom = String.valueOf(now.minusDays(1).toEpochSecond()); // Bir kun oldingi vaqt
-//
-//        System.out.println("Start Time (Epoch): " + startStampFrom);
-//        System.out.println("End Time (Epoch): " + startStampTo);
-//
-//        // PBX'dan ma'lumotlarni olib, Zoho CRM'ga yozish
-//        createLeadsFromPBXResponses(startStampFrom, startStampTo);
-//    }
+    @Scheduled(cron = "01 59 23 * * *", zone = "Asia/Dubai") // Dubay vaqtiga o'zgartirildi
+    public void autoRun() {
+        // Hozirgi vaqtni olish (GMT+4 - Dubai zonasi)
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Dubai"));
+
+        // So'nggi kunlik vaqt intervalini olish
+        String startStampTo = String.valueOf(now.toEpochSecond()); // Hozirgi vaqt
+        String startStampFrom = String.valueOf(now.minusDays(1).toEpochSecond()); // Bir kun oldingi vaqt
+
+        System.out.println("Start Time (Epoch): " + startStampFrom);
+        System.out.println("End Time (Epoch): " + startStampTo);
+
+        // PBX'dan ma'lumotlarni olib, Zoho CRM'ga yozish
+        createLeadsFromRingStarResponse(ringStarService.getCalls());
+    }
 
 }
 

@@ -17,36 +17,36 @@ public class PBXService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-//    public List<PbxResponse> getCalls(String authenticationKey) {
-//        String url = "https://api2.onlinepbx.ru/pbx28186.onpbx.ru/mongo_history/search.json";
-//
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.set("x-pbx-authentication", authenticationKey);
-//        headers.set("Content-Type", "application/x-www-form-urlencoded");
-//
-//        // Parametrlarsiz request body
-//        HttpEntity<String> entity = new HttpEntity<>("", headers);
-//
-//        try {
-//            ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
-//
-//            ObjectMapper objectMapper = new ObjectMapper();
-//            JsonNode rootNode = objectMapper.readTree(response.getBody());
-//            JsonNode dataNode = rootNode.path("data");
-//
-//            List<PbxResponse> pbxResponses = new ArrayList<>();
-//            if (dataNode.isArray()) {
-//                for (JsonNode dataItem : dataNode) {
-//                    PbxResponse pbxResponse = objectMapper.treeToValue(dataItem, PbxResponse.class);
-//                    pbxResponses.add(pbxResponse);
-//                }
-//            }
-//            return pbxResponses;
-//
-//        } catch (Exception e) {
-//            throw new RuntimeException("Error while parsing PBX response: " + e.getMessage(), e);
-//        }
-//    }
+    public List<PbxResponse> getCalls(String authenticationKey) {
+        String url = "https://api2.onlinepbx.ru/pbx28186.onpbx.ru/mongo_history/search.json";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("x-pbx-authentication", authenticationKey);
+        headers.set("Content-Type", "application/x-www-form-urlencoded");
+
+        // Parametrlarsiz request body
+        HttpEntity<String> entity = new HttpEntity<>("", headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode rootNode = objectMapper.readTree(response.getBody());
+            JsonNode dataNode = rootNode.path("data");
+
+            List<PbxResponse> pbxResponses = new ArrayList<>();
+            if (dataNode.isArray()) {
+                for (JsonNode dataItem : dataNode) {
+                    PbxResponse pbxResponse = objectMapper.treeToValue(dataItem, PbxResponse.class);
+                    pbxResponses.add(pbxResponse);
+                }
+            }
+            return pbxResponses;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error while parsing PBX response: " + e.getMessage(), e);
+        }
+    }
 
     public String getCallAudioFileUrl(String uuid, String authenticationKey) {
         String url = "https://api2.onlinepbx.ru/pbx28186.onpbx.ru/mongo_history/search.json";
@@ -112,36 +112,36 @@ public class PBXService {
         }
     }
 
-        public List<PbxResponse> getCalls(String authenticationKey) {
-        String startStampFrom="1734652800";
-        String startStampTo="1735343999";
-        String url = "https://api2.onlinepbx.ru/pbx28186.onpbx.ru/mongo_history/search.json";
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("x-pbx-authentication", authenticationKey);
-        headers.set("Content-Type", "application/x-www-form-urlencoded");
-
-        String requestBody = "start_stamp_from=" + startStampFrom + "&start_stamp_to=" + startStampTo;
-
-        HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
-
-        ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
-
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode rootNode = objectMapper.readTree(response.getBody());
-            JsonNode dataNode = rootNode.path("data");
-
-            List<PbxResponse> pbxResponses = new ArrayList<>();
-            if (dataNode.isArray()) {
-                for (JsonNode dataItem : dataNode) {
-                    PbxResponse pbxResponse = objectMapper.treeToValue(dataItem, PbxResponse.class);
-                    pbxResponses.add(pbxResponse);
-                }
-            }
-            return pbxResponses;
-        } catch (Exception e) {
-            throw new RuntimeException("Error while parsing PBX response: " + e.getMessage(), e);
-        }
-    }
+//        public List<PbxResponse> getCalls(String authenticationKey) {
+//        String startStampFrom="1734652800";
+//        String startStampTo="1735343999";
+//        String url = "https://api2.onlinepbx.ru/pbx28186.onpbx.ru/mongo_history/search.json";
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.set("x-pbx-authentication", authenticationKey);
+//        headers.set("Content-Type", "application/x-www-form-urlencoded");
+//
+//        String requestBody = "start_stamp_from=" + startStampFrom + "&start_stamp_to=" + startStampTo;
+//
+//        HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+//
+//        ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
+//
+//        try {
+//            ObjectMapper objectMapper = new ObjectMapper();
+//            JsonNode rootNode = objectMapper.readTree(response.getBody());
+//            JsonNode dataNode = rootNode.path("data");
+//
+//            List<PbxResponse> pbxResponses = new ArrayList<>();
+//            if (dataNode.isArray()) {
+//                for (JsonNode dataItem : dataNode) {
+//                    PbxResponse pbxResponse = objectMapper.treeToValue(dataItem, PbxResponse.class);
+//                    pbxResponses.add(pbxResponse);
+//                }
+//            }
+//            return pbxResponses;
+//        } catch (Exception e) {
+//            throw new RuntimeException("Error while parsing PBX response: " + e.getMessage(), e);
+//        }
+//    }
 
 }

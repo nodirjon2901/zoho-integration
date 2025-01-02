@@ -26,6 +26,12 @@ public class IntegrationController {
         return "OK";
     }
 
+    @GetMapping(value = "/history")
+    public String pBXWithZohoHistory() {
+        zohoService.createLeadsFromPBXResponses();
+        return "OK";
+    }
+
     @GetMapping("/ring-star")
     public String ringStarWithZoho() {
         List<RingStarResponse> calls = ringStarService.getCalls();
